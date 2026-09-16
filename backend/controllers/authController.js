@@ -172,7 +172,10 @@ exports.getMe = async (req, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     // 👤 MASTER REGISTRY BRIDGE: Always fetch from the Employee model for personnel details using verified user._id
-    const employeeData = await Employee.findOne({ userId: user._id }).populate('reportingManager', 'name email').lean();
+    const employeeData = await Employee.findOne({ userId: user._id })
+      .populate('reportingManager', 'name email')
+      .populate('managerId', 'name email')
+      .lean();
 
     // 🛰️ DYNAMIC SHADOW LOOKUP: Fetch role-specific metadata if needed
     let roleMetadata = {};
@@ -182,6 +185,8 @@ exports.getMe = async (req, res) => {
       roleMetadata = await Manager.findOne({ userId: user._id }).lean() || {};
     }
 
+    const activeReportingManager = user.reportingManager || employeeData?.reportingManager || employeeData?.managerId || null;
+
     console.log(`[PROFILE TRACE] User: ${user.name || user.email} | Role: ${user.role} | Master Registry: ${!!employeeData} | Shadow: ${!!roleMetadata}`);
 
     // Merge data - preserve the master User role and use registry data only for identity fields.
@@ -189,6 +194,8 @@ exports.getMe = async (req, res) => {
       ...employeeData,
       ...user,
       ...roleMetadata,
+      reportingManager: activeReportingManager,
+      managerId: activeReportingManager,
       role: user.role,
       fullName: employeeData?.fullName || user.fullName || user.name || '',
       name: user.name || employeeData?.fullName || '',
@@ -370,7 +377,7 @@ exports.forgotPassword = async (req, res) => {
     const resetToken = user.createPasswordResetToken();
     await user.save({ validateBeforeSave: false });
     // Create reset URL using CLIENT_URL environment variable if set, otherwise falling back to request protocol/host
-    const clientUrl = (process.env.CLIENT_URL || `${req.protocol}://${req.get('host').replace(/:\d+/, ':4000')}`).replace(/\/+$/, '');
+    const clientUrl = (process.env.FRONTEND_URL || process.env.CLIENT_URL || process.env.APP_URL || process.env.RENDER_EXTERNAL_URL || `${req.protocol}://${req.get('host')}`).replace(/\/+$/, '');
     const resetUrl = `${clientUrl}/reset-password/${resetToken}`;
 
     const message = `You are receiving this email because you (or someone else) has requested the reset of a password. Please click on the link below to reset your password:\n\n${resetUrl}\n\nIf you did not request a password reset, please ignore this email.\nThis link will expire in 30 minutes.`;

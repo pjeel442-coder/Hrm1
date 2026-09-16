@@ -16,6 +16,7 @@ exports.getEmployees = async (req, res) => {
 
     let employees = await Employee.find(query)
       .populate('userId', 'name email status role')
+      .populate('reportingManager', 'name email')
       .populate('managerId', 'name email')
       .lean();
 
@@ -81,11 +82,13 @@ exports.getEmployeeById = async (req, res) => {
     if (isObjectId) {
       employee = await Employee.findById(rawId)
         .populate('userId', 'name email status role')
+        .populate('reportingManager', 'name email')
         .populate('managerId', 'name email');
 
       if (!employee) {
         employee = await Employee.findOne({ userId: rawId })
           .populate('userId', 'name email status role')
+          .populate('reportingManager', 'name email')
           .populate('managerId', 'name email');
       }
     }
@@ -93,11 +96,13 @@ exports.getEmployeeById = async (req, res) => {
     if (!employee && isSanitizedObjectId) {
       employee = await Employee.findById(sanitizedId)
         .populate('userId', 'name email status role')
+        .populate('reportingManager', 'name email')
         .populate('managerId', 'name email');
 
       if (!employee) {
         employee = await Employee.findOne({ userId: sanitizedId })
           .populate('userId', 'name email status role')
+          .populate('reportingManager', 'name email')
           .populate('managerId', 'name email');
       }
     }
@@ -105,6 +110,7 @@ exports.getEmployeeById = async (req, res) => {
     if (!employee) {
       employee = await Employee.findOne({ employeeId: rawId })
         .populate('userId', 'name email status role')
+        .populate('reportingManager', 'name email')
         .populate('managerId', 'name email');
     }
 
@@ -115,6 +121,7 @@ exports.getEmployeeById = async (req, res) => {
       if (isPrefixHex) {
         employee = await Employee.findOne({ _id: { $regex: new RegExp(`^${prefix}`) } })
           .populate('userId', 'name email status role')
+          .populate('reportingManager', 'name email')
           .populate('managerId', 'name email');
       }
     }
@@ -179,11 +186,13 @@ exports.createEmployee = async (req, res) => {
       finalEmployeeId = `${prefix}-${String(count + 1).padStart(3, '0')}`;
     }
 
+    const managerVal = employeeData.reportingManager || employeeData.managerId || null;
     const newUser = new User({
       name: fullName,
       email,
       password,
       role: userRole,
+      reportingManager: managerVal
     });
     const savedUser = await newUser.save();
 
@@ -194,6 +203,8 @@ exports.createEmployee = async (req, res) => {
       fullName,
       role: userRole,
       ...employeeData,
+      reportingManager: managerVal,
+      managerId: managerVal,
       employeeId: finalEmployeeId
     });
 
@@ -248,24 +259,33 @@ exports.updateEmployee = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to modify this employee' });
     }
 
+    // 🤝 Ensure reportingManager & managerId are synchronized
+    let targetManagerId = undefined;
+    if (updateData.reportingManager !== undefined || updateData.managerId !== undefined) {
+      targetManagerId = updateData.reportingManager !== undefined ? updateData.reportingManager : updateData.managerId;
+      updateData.reportingManager = targetManagerId;
+      updateData.managerId = targetManagerId;
+    }
+
     const updatedEmployee = await Employee.findByIdAndUpdate(req.params.id, updateData, { new: true });
 
-    // Also update User if name or role changed (email is now locked)
-    if (updateData.fullName || updateData.role) {
-      const userUpdate = {};
-      if (updateData.fullName) userUpdate.name = updateData.fullName;
-      if (updateData.role) {
-        userUpdate.role = updateData.role;
+    // Also update User if name, role, or reportingManager changed
+    const userUpdate = {};
+    if (updateData.fullName) userUpdate.name = updateData.fullName;
+    if (targetManagerId !== undefined) userUpdate.reportingManager = targetManagerId;
+    if (updateData.role) {
+      userUpdate.role = updateData.role;
 
-        // 🚀 SHADOW MIGRATION: Ensure Manager/HR record exists if role changed
-        if (updateData.role === 'manager') {
-          const exists = await Manager.findOne({ userId: employee.userId });
-          if (!exists) await Manager.create({ userId: employee.userId, department: updatedEmployee.department?.name || 'Operations' });
-        } else if (updateData.role === 'hr') {
-          const exists = await HR.findOne({ userId: employee.userId });
-          if (!exists) await HR.create({ userId: employee.userId });
-        }
+      // 🚀 SHADOW MIGRATION: Ensure Manager/HR record exists if role changed
+      if (updateData.role === 'manager') {
+        const exists = await Manager.findOne({ userId: employee.userId });
+        if (!exists) await Manager.create({ userId: employee.userId, department: updatedEmployee.department?.name || 'Operations' });
+      } else if (updateData.role === 'hr') {
+        const exists = await HR.findOne({ userId: employee.userId });
+        if (!exists) await HR.create({ userId: employee.userId });
       }
+    }
+    if (Object.keys(userUpdate).length > 0) {
       await User.findByIdAndUpdate(employee.userId, userUpdate);
     }
 
@@ -296,11 +316,27 @@ exports.deleteEmployee = async (req, res) => {
       return res.status(403).json({ message: 'Not authorized to delete Admin profiles' });
     }
 
-    await Employee.findByIdAndUpdate(employee._id, { status: 'inactive' });
-    if (employee.userId) {
-      await User.findByIdAndUpdate(employee.userId, { status: 'inactive' });
+    const Leave = require('../models/Leave');
+    const LeaveBalance = require('../models/LeaveBalance');
+    const LeaveHistory = require('../models/LeaveHistory');
+    const CompOffRequest = require('../models/CompOffRequest');
+    const OnDutyRequest = require('../models/OnDutyRequest');
+    const Attendance = require('../models/Attendance');
+    const DailyReport = require('../models/DailyReport');
+
+    const uId = employee.userId?._id || employee.userId;
+    if (uId) {
+      await Leave.deleteMany({ user: uId });
+      await LeaveBalance.deleteMany({ employeeId: uId });
+      await CompOffRequest.deleteMany({ employeeId: uId });
+      await OnDutyRequest.deleteMany({ employeeId: uId });
+      await Attendance.deleteMany({ user: uId });
+      await DailyReport.deleteMany({ user: uId });
+      await User.findByIdAndDelete(uId);
     }
-    res.json({ message: 'Employee marked as inactive' });
+    await Employee.findByIdAndDelete(employee._id);
+
+    res.json({ message: 'Employee and associated data deleted successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

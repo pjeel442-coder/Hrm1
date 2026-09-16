@@ -27,7 +27,31 @@ import Login from '@shared/pages/Login';
 import ForgotPassword from '@shared/pages/ForgotPassword';
 import ResetPassword from '@shared/pages/ResetPassword';
 import MainLayout from '@shared/layouts/MainLayout';
-import { Users, Calendar, Bell, Camera, User, FileText, SlidersHorizontal } from 'lucide-react';
+import {
+  Users,
+  Calendar,
+  Bell,
+  Camera,
+  User,
+  FileText,
+  SlidersHorizontal,
+  ClipboardList,
+  LayoutDashboard,
+  UserPlus,
+  Building2,
+  IdCard,
+  CheckSquare,
+  PlusCircle,
+  Layers,
+  MessageSquare,
+  Wallet,
+  TrendingUp,
+  GraduationCap,
+  BarChart3,
+  ShieldCheck,
+  Plug,
+  Settings as SettingsIcon
+} from 'lucide-react';
 
 // Route-level pages are lazy-loaded so a role only downloads the code for
 // the pages it actually visits, instead of every page in the app upfront.
@@ -181,13 +205,33 @@ const App = () => {
   }, []);
 
   const adminNavItems = [
-    { label: 'Notifications', icon: Bell, path: '/notifications' },
+    { label: 'Dashboard', icon: LayoutDashboard, path: '/dashboard' },
     { label: 'Employees', icon: Users, path: '/employees' },
+    { label: 'Create User', icon: UserPlus, path: '/create-user' },
+    { label: 'Departments', icon: Building2, path: '/departments' },
+    { label: 'Designations', icon: IdCard, path: '/designations' },
+    { label: 'Daily Tasks Board', icon: CheckSquare, path: '/tasks' },
+    { label: 'Create Task', icon: PlusCircle, path: '/task-management/create' },
+    { label: 'Daily Work Report', icon: FileText, path: '/daily-report' },
+    { label: 'Projects', icon: Layers, path: '/projects' },
+    { label: 'Events Management', icon: Calendar, path: '/events' },
+    { label: 'Leave Management', icon: ClipboardList, path: '/leave' },
     { label: 'Attendance', icon: Calendar, path: '/attendance' },
-    { label: 'Daily Report', icon: FileText, path: '/daily-report' },
-    { label: 'Screenshots', icon: Camera, path: '/screenshots' },
+    { label: 'Global Chat', icon: MessageSquare, path: '/chat' },
+    { label: 'Payroll', icon: Wallet, path: '/payroll' },
+    { label: 'Recruitment', icon: UserPlus, path: '/recruitment' },
+    { label: 'Performance', icon: TrendingUp, path: '/performance' },
+    { label: 'Training', icon: GraduationCap, path: '/training' },
+    { label: 'Reports', icon: BarChart3, path: '/reports' },
+    { label: 'Documents', icon: FileText, path: '/documents' },
+    { label: 'Activity Logs', icon: Camera, path: '/screenshots' },
     { label: 'Dropdown Setup', icon: SlidersHorizontal, path: '/dropdown-settings' },
+    { label: 'Roles & Permissions', icon: ShieldCheck, path: '/roles-permissions' },
+    { label: 'Audit Logs', icon: ClipboardList, path: '/audit-logs' },
+    { label: 'Integrations', icon: Plug, path: '/integrations' },
+    { label: 'Notifications', icon: Bell, path: '/notifications' },
     { label: 'My Profile', icon: User, path: '/profile' },
+    { label: 'Settings', icon: SettingsIcon, path: '/settings' }
   ];
 
   return (
@@ -266,6 +310,7 @@ const App = () => {
             <Route path="task-management/update/:id" element={<TaskUpdate />} />
 
             <Route path="leave" element={<LeaveManagement />} />
+            <Route path="leaves" element={<LeaveManagement />} />
             <Route path="attendance" element={<Attendance />} />
             <Route path="daily-report" element={<DailyReport />} />
             <Route path="payroll" element={<Payroll />} />
@@ -303,6 +348,7 @@ const App = () => {
             <Route path="admin/task-management/create" element={<TaskCreate />} />
             <Route path="admin/task-management/update/:id" element={<TaskUpdate />} />
             <Route path="admin/leave" element={<LeaveManagement />} />
+            <Route path="admin/leaves" element={<LeaveManagement />} />
             <Route path="admin/attendance" element={<Attendance />} />
             <Route path="admin/daily-report" element={<DailyReport />} />
             <Route path="admin/payroll" element={<Payroll />} />
@@ -345,6 +391,7 @@ const App = () => {
             <Route path="task-management/create" element={<TaskCreate />} />
             <Route path="task-management/update/:id" element={<TaskUpdate />} />
             <Route path="leave" element={<LeaveManagement />} />
+            <Route path="leaves" element={<LeaveManagement />} />
             <Route path="attendance" element={<Attendance />} />
             <Route path="daily-report" element={<DailyReport />} />
             <Route path="employees" element={<HREmployees />} />
@@ -389,6 +436,7 @@ const App = () => {
             <Route path="task-management/update/:id" element={<TaskUpdate />} />
             <Route path="projects" element={<EmployeeProjects />} />
             <Route path="leave" element={<EmployeeLeave />} />
+            <Route path="leaves" element={<EmployeeLeave />} />
             <Route path="holidays" element={<EmployeeHolidays />} />
             <Route path="attendance" element={<Attendance />} />
             <Route path="daily-report" element={<DailyReport />} />
@@ -430,6 +478,7 @@ const App = () => {
             <Route path="task-management/update/:id" element={<TaskUpdate />} />
             <Route path="projects" element={<ManagerProjects />} />
             <Route path="leave" element={<ManagerLeaveManagement />} />
+            <Route path="leaves" element={<ManagerLeaveManagement />} />
             <Route path="attendance" element={<Attendance />} />
             <Route path="daily-report" element={<DailyReport />} />
             <Route path="chat" element={<Chat />} />

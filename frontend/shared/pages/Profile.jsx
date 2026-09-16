@@ -58,6 +58,26 @@ const Profile = () => {
     }
   };
 
+  const [managersMap, setManagersMap] = useState({});
+
+  useEffect(() => {
+    const fetchManagersMap = async () => {
+      try {
+        const res = await axios.get('/api/personnel/all', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const map = {};
+        if (Array.isArray(res.data)) {
+          res.data.forEach(m => {
+            map[m._id] = m.name || m.fullName || m.email;
+          });
+        }
+        setManagersMap(map);
+      } catch (err) {}
+    };
+    if (token) fetchManagersMap();
+  }, [token]);
+
   useEffect(() => {
     if (token) fetchProfile();
   }, [token]);
@@ -106,11 +126,20 @@ const Profile = () => {
 
   const initials = fullName ? fullName.split(' ').filter(Boolean).map(n => n[0]).join('').toUpperCase().substring(0, 2) : '';
 
-  const reportingManagerName = safeUserData.reportingManager
-    ? (typeof safeUserData.reportingManager === 'object'
-      ? (safeUserData.reportingManager.name || safeUserData.reportingManager.fullName || '')
-      : safeUserData.reportingManager)
-    : '';
+  const managerObj = safeUserData.reportingManager || safeUserData.managerId;
+  let reportingManagerName = '';
+  if (managerObj) {
+    if (typeof managerObj === 'object') {
+      reportingManagerName = managerObj.name || managerObj.fullName || '';
+    } else if (typeof managerObj === 'string') {
+      const isHexId = /^[0-9a-fA-F]{24}$/.test(managerObj);
+      if (isHexId) {
+        reportingManagerName = managersMap[managerObj] || '';
+      } else {
+        reportingManagerName = managerObj;
+      }
+    }
+  }
 
   const handleDocumentUpload = async (type, file) => {
     if (!file) return;

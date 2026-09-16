@@ -34,7 +34,15 @@ const PendingApprovalQueue = ({ onAction }) => {
 
   useEffect(() => {
     const handleSetFilter = (e) => {
-      if (e.detail) {
+      if (e.detail === 'on_leave_today') {
+        const todayStr = new Date().toISOString().split('T')[0];
+        setFilterStartDate(todayStr);
+        setFilterEndDate(todayStr);
+        setRequestFilter('approved');
+        setCurrentPage(1);
+      } else if (e.detail) {
+        setFilterStartDate('');
+        setFilterEndDate('');
         setRequestFilter(e.detail);
         setCurrentPage(1);
       }
@@ -178,7 +186,7 @@ const PendingApprovalQueue = ({ onAction }) => {
   });
 
   return (
-    <div className="bg-white dark:bg-[#1e293b] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 min-h-[620px] flex flex-col justify-between transition-colors duration-300 hover:!border-violet-500 dark:hover:!border-violet-400">
+    <div className="bg-white dark:bg-[#1e293b] rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-gray-800 min-h-[360px] h-auto relative z-10 flex flex-col justify-between transition-colors duration-300 hover:!border-violet-500 dark:hover:!border-violet-400">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
         <div>
           <h2 className="text-lg font-bold text-gray-900 dark:text-white">Employee Leave Requests</h2>

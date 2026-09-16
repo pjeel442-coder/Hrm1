@@ -15,7 +15,11 @@ import {
   Target,
   Globe,
   Briefcase,
-  User
+  User,
+  Bell,
+  CheckSquare,
+  PlusCircle,
+  Settings as SettingsIcon
 } from 'lucide-react';
 
 const Dashboard = lazy(() => import('./pages/Dashboard'));
@@ -35,22 +39,17 @@ const Notifications = lazy(() => import('../../admin/src/pages/Notifications'));
 
 const DailyReport = lazy(() => import('./pages/DailyReport'));
 
-const ScrollToTop = () => {
+function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [pathname]);
   return null;
-};
+}
 
 const RouteLoadingFallback = () => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-    <div style={{
-      width: 32, height: 32, borderRadius: '50%',
-      border: '3px solid rgba(0,167,107,0.2)', borderTopColor: '#00a76b',
-      animation: 'spin 0.7s linear infinite'
-    }} />
-    <style>{'@keyframes spin { to { transform: rotate(360deg); } }'}</style>
+  <div className="flex items-center justify-center min-h-[400px]">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00a76b]"></div>
   </div>
 );
 
@@ -74,9 +73,20 @@ function App() {
   };
 
   const navItems = [
-    { label: 'Attendance', icon: CalendarDays, path: '/attendance' },
-    { label: 'Daily Report', icon: FileText, path: '/daily-report' },
+    { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
+    { label: 'Team Chat', icon: MessageSquare, path: '/chat' },
+    { label: 'My Attendance', icon: CalendarDays, path: '/attendance' },
+    { label: 'Daily Work Report', icon: FileText, path: '/daily-report' },
+    { label: 'Leave Management', icon: Calendar, path: '/leave' },
+    { label: 'My Projects', icon: FolderOpen, path: '/projects' },
+    { label: 'My Payslips', icon: Wallet, path: '/payslips' },
+    { label: 'My Documents', icon: FileText, path: '/documents' },
+    { label: 'My Performance', icon: Target, path: '/performance' },
+    { label: 'Company Holidays', icon: Globe, path: '/holidays' },
+    { label: 'Events', icon: Briefcase, path: '/events' },
+    { label: 'Notifications', icon: Bell, path: '/notifications' },
     { label: 'My Profile', icon: User, path: '/profile' },
+    { label: 'Settings', icon: SettingsIcon, path: '/settings' }
   ];
 
   return (

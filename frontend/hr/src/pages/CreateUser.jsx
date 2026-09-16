@@ -406,7 +406,8 @@ const CreateUser = () => {
         permanentAddress: formData.permanentAddress,
         dob: formData.dob,
         joinDate: formData.joinDate,
-        reportingManager: formData.role === 'employee' ? formData.reportingManager : null
+        reportingManager: formData.role === 'employee' ? formData.reportingManager : null,
+        managerId: formData.role === 'employee' ? formData.reportingManager : null
       };
 
       const response = await axios.post('/api/users/create', payload, {

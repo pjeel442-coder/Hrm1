@@ -265,7 +265,7 @@ const CustomDatePicker = ({ name, value, onChange, minDate, maxDate, isDateDisab
                           : isToday
                           ? 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400 border border-emerald-300 dark:border-emerald-800'
                           : isDisabled
-                          ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed opacity-35 line-through'
+                          ? 'text-slate-300 dark:text-slate-600 cursor-not-allowed opacity-50 font-normal'
                           : 'text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-[#1a332c]'
                       }`}
                     >

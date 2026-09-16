@@ -47,7 +47,7 @@ exports.createNewUserAtomic = async (userData) => {
     // 2. Strict ID Generation (Format: hr-004.hr)
     const roleMatch = role.toLowerCase();
     const count = await User.countDocuments({});
-    const generatedId = `AT_EMP_${count + 1}`;
+    const managerId = userData.reportingManager || userData.managerId || null;
 
     // 3. Root User Creation (Goal Component c)
     const user = new User({ 
@@ -56,6 +56,7 @@ exports.createNewUserAtomic = async (userData) => {
         password, 
         role: role.toLowerCase(), 
         employeeId: generatedId,
+        reportingManager: managerId,
         status: 'active' 
     });
     await user.save();
@@ -70,7 +71,8 @@ exports.createNewUserAtomic = async (userData) => {
           employeeId: generatedId,
           role: role.toLowerCase(),
           joinDate: userData.joinDate || new Date(),
-          reportingManager: userData.reportingManager || null,
+          reportingManager: managerId,
+          managerId: managerId,
           ...extraData 
       });
       await employeeProfile.save();

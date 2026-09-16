@@ -85,13 +85,27 @@ function App() {
   };
 
   const navItems = [
+    { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
     { label: 'Employees', icon: Users, path: '/employees' },
+    { label: 'Create User', icon: UserPlus, path: '/create-user' },
+    { label: 'Daily Tasks Board', icon: CheckSquare, path: '/tasks' },
+    { label: 'Daily Work Report', icon: FileText, path: '/daily-report' },
+    { label: 'Projects', icon: Layers, path: '/projects' },
+    { label: 'Leave Management', icon: ClipboardList, path: '/leave' },
     { label: 'Attendance', icon: Calendar, path: '/attendance' },
-    { label: 'Daily Report', icon: FileText, path: '/daily-report' },
-    { label: 'Notifications', icon: Bell, path: '/notifications' },
-    { label: 'Screenshots', icon: Camera, path: '/screenshots' },
+    { label: 'Payroll', icon: Wallet, path: '/payroll' },
+    { label: 'Recruitment', icon: UserPlus, path: '/recruitment' },
+    { label: 'Performance', icon: TrendingUp, path: '/performance' },
+    { label: 'Training', icon: GraduationCap, path: '/training' },
+    { label: 'Events & Notices', icon: PartyPopper, path: '/events' },
+    { label: 'HR Reports', icon: BarChart3, path: '/reports' },
+    { label: 'Activity Logs', icon: Camera, path: '/screenshots' },
+    { label: 'Documents', icon: FileText, path: '/documents' },
     { label: 'Dropdown Setup', icon: SlidersHorizontal, path: '/dropdown-settings' },
+    { label: 'Team Chat', icon: MessageSquare, path: '/chat' },
+    { label: 'Notifications', icon: Bell, path: '/notifications' },
     { label: 'My Profile', icon: User, path: '/profile' },
+    { label: 'Settings', icon: SettingsIcon, path: '/settings' }
   ];
 
   return (

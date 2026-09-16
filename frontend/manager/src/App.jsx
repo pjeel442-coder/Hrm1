@@ -17,7 +17,9 @@ import {
   User,
   Bell,
   Camera,
-  FileText
+  FileText,
+  TrendingUp,
+  Settings as SettingsIcon
 } from 'lucide-react';
 
 const ManagerDashboard = lazy(() => import('./pages/ManagerDashboard'));
@@ -38,13 +40,8 @@ const Settings = lazy(() => import('@shared/pages/Settings'));
 const Chat = lazy(() => import('@shared/pages/Chat'));
 
 const RouteLoadingFallback = () => (
-  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: '60vh' }}>
-    <div style={{
-      width: 32, height: 32, borderRadius: '50%',
-      border: '3px solid rgba(0,167,107,0.2)', borderTopColor: '#00a76b',
-      animation: 'spin 0.7s linear infinite'
-    }} />
-    <style>{'@keyframes spin { to { transform: rotate(360deg); } }'}</style>
+  <div className="flex items-center justify-center min-h-[400px]">
+    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#00a76b]"></div>
   </div>
 );
 
@@ -66,12 +63,21 @@ function App() {
   };
 
   const navItems = [
+    { label: 'Dashboard', icon: LayoutDashboard, path: '/' },
+    { label: 'My Team', icon: Users, path: '/employees' },
+    { label: 'Tasks', icon: CheckSquare, path: '/tasks' },
+    { label: 'Create Task', icon: PlusCircle, path: '/tasks/create' },
+    { label: 'Daily Work Report', icon: FileText, path: '/daily-report' },
+    { label: 'Projects', icon: Layers, path: '/projects' },
+    { label: 'Team Attendance', icon: CalendarDays, path: '/attendance' },
+    { label: 'Leave Management', icon: Calendar, path: '/leave' },
+    { label: 'Team Chat', icon: MessageSquare, path: '/chat' },
+    { label: 'Company Holidays', icon: Globe, path: '/holidays' },
+    { label: 'Events', icon: Briefcase, path: '/events' },
+    { label: 'Activity Logs', icon: Camera, path: '/screenshots' },
     { label: 'Notifications', icon: Bell, path: '/notifications' },
-    { label: 'My Team', icon: Users, path: '/manager' },
-    { label: 'Attendance', icon: CalendarDays, path: '/attendance' },
-    { label: 'Daily Report', icon: FileText, path: '/daily-report' },
-    { label: 'Screenshots', icon: Camera, path: '/screenshots' },
     { label: 'My Profile', icon: User, path: '/profile' },
+    { label: 'Settings', icon: SettingsIcon, path: '/settings' }
   ];
 
   return (

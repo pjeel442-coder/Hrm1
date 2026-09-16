@@ -65,7 +65,7 @@ export const AttendanceDatePicker = ({
       const [s, e] = value.split(':');
       return { startDateStr: s, endDateStr: e };
     }
-    return { startDateStr: value, endDateStr: value };
+    return { startDateStr: value, endDateStr: '' };
   }, [value]);
 
   const todayStr = useMemo(() => getLocalYYYYMMDD(new Date()), []);
@@ -74,8 +74,8 @@ export const AttendanceDatePicker = ({
   const currentMonthNumber = todayDate.getMonth();
 
   // Internal draft states for From / To selection inside popover
-  const [draftStart, setDraftStart] = useState(startDateStr || todayStr);
-  const [draftEnd, setDraftEnd] = useState(endDateStr || todayStr);
+  const [draftStart, setDraftStart] = useState(startDateStr || '');
+  const [draftEnd, setDraftEnd] = useState(endDateStr || '');
 
   const [viewDate, setViewDate] = useState(() => {
     if (startDateStr) {
@@ -89,7 +89,7 @@ export const AttendanceDatePicker = ({
   useEffect(() => {
     if (startDateStr) {
       setDraftStart(startDateStr);
-      setDraftEnd(endDateStr || startDateStr);
+      setDraftEnd(endDateStr || '');
       const parsed = parseDateStr(startDateStr);
       if (parsed) setViewDate(parsed);
     } else {
@@ -134,7 +134,7 @@ export const AttendanceDatePicker = ({
     if (!value) return '';
     if (typeof value === 'string' && value.includes(':')) {
       const [s, e] = value.split(':');
-      if (s === e) return formatDateDisplay(s);
+      if (!e || s === e) return formatDateDisplay(s);
       return `${formatDateDisplay(s)} - ${formatDateDisplay(e)}`;
     }
     return formatDateDisplay(value);
@@ -193,7 +193,7 @@ export const AttendanceDatePicker = ({
 
     if (!allowRange) {
       setDraftStart(clickedStr);
-      setDraftEnd(clickedStr);
+      setDraftEnd('');
       onChange(clickedStr);
       setIsOpen(false);
       return;
@@ -201,35 +201,27 @@ export const AttendanceDatePicker = ({
 
     if (selectingField === 'start') {
       setDraftStart(clickedStr);
-      if (!draftEnd || draftEnd < clickedStr) {
-        setDraftEnd(clickedStr);
-      } else {
-        // Verify range does not exceed 30 days
-        const d1 = parseDateStr(clickedStr);
-        const d2 = parseDateStr(draftEnd);
-        const diff = Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-        if (diff > 30) {
-          const maxDate = new Date(d1.getTime() + 29 * 24 * 60 * 60 * 1000);
-          let cappedStr = getLocalYYYYMMDD(maxDate);
-          if (disableFuture && cappedStr > todayStr) {
-            cappedStr = todayStr;
-          }
-          setDraftEnd(cappedStr);
-          setRangeNotice('Max range is 30 days. Auto-adjusted to 30 days.');
-          setTimeout(() => setRangeNotice(''), 3000);
-        }
+      if (draftEnd && draftEnd < clickedStr) {
+        setDraftEnd('');
       }
       setSelectingField('end');
     } else {
-      // Selecting End
-      let s = draftStart || clickedStr;
+      let s = draftStart;
       let e = clickedStr;
+
+      if (!s) {
+        setDraftStart(clickedStr);
+        setSelectingField('end');
+        return;
+      }
+
       if (e < s) {
-        [s, e] = [e, s];
+        setDraftStart(e);
+        setDraftEnd('');
+        setSelectingField('end');
+        return;
       }
-      if (disableFuture && e > todayStr) {
-        e = todayStr;
-      }
+
       const d1 = parseDateStr(s);
       const d2 = parseDateStr(e);
       const diff = Math.round((d2.getTime() - d1.getTime()) / (1000 * 60 * 60 * 24)) + 1;
@@ -243,7 +235,7 @@ export const AttendanceDatePicker = ({
         setRangeNotice('Max range is 30 days. Auto-adjusted to 30 days.');
         setTimeout(() => setRangeNotice(''), 3000);
       }
-      setDraftStart(s);
+
       setDraftEnd(e);
       setSelectingField('start');
     }

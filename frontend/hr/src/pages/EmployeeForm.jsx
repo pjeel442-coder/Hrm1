@@ -219,7 +219,7 @@ const EmployeeForm = () => {
             role: fetchedRole,
             department: emp.department || '',
             designation: fetchedDesignation,
-            managerId: emp.managerId?._id || emp.managerId || '',
+            managerId: emp.reportingManager?._id || emp.reportingManager || emp.managerId?._id || emp.managerId || '',
             joinDate: emp.joinDate ? emp.joinDate.split('T')[0] : new Date().toISOString().split('T')[0],
             employmentType: emp.employmentType || 'Full-time',
             profileImage: emp.profileImage || '',
@@ -413,7 +413,8 @@ const EmployeeForm = () => {
         dob: formData.dob,
         joinDate: formData.joinDate,
         employmentType: formData.employmentType || 'Full-time',
-        managerId: !['hr', 'manager', 'admin'].includes(formData.role?.toLowerCase()) ? formData.managerId : null
+        managerId: !['hr', 'manager', 'admin'].includes(formData.role?.toLowerCase()) ? formData.managerId : null,
+        reportingManager: !['hr', 'manager', 'admin'].includes(formData.role?.toLowerCase()) ? formData.managerId : null
       };
 
       if (formData.password) {
